@@ -28,6 +28,7 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include <stdio.h>
 #include "constants.h"
 #include "allmodels.h"
+#include<iostream>
 #include "lodepng.h"
 #include "shaderprogram.h"
 #include "myCube.h"
@@ -63,23 +64,23 @@ glm::mat3 cbmMatrix = glm::mat3(
 
 int MazeBase[19][19] = {
 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-{1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-{1,0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1},
+{1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
+{1,0,0,0,0,1,1,0,1,1,1,1,1,1,1,0,0,0,1},
 {1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,1},
-{1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,1,1,0,1},
-{1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1},
-{1,0,1,1,0,1,1,0,1,1,1,0,1,3,1,1,1,0,1},
-{1,0,0,1,0,1,0,0,1,0,0,0,1,2,2,2,1,0,1},
-{1,0,1,1,0,1,1,1,1,1,1,1,2,2,1,2,1,1,1},
+{1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,0,0,1},
+{1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1},
+{1,0,0,0,0,1,0,0,1,1,1,0,1,3,1,1,1,0,1},
+{1,0,0,0,0,1,0,0,1,0,0,0,1,2,2,2,1,0,1},
+{1,0,0,0,0,1,1,1,1,1,1,1,2,2,1,2,1,1,1},
 {1,0,0,1,0,0,0,0,1,0,0,1,2,1,1,2,3,0,1},
 {1,1,0,1,1,0,1,1,1,0,0,1,3,1,1,1,1,0,1},
 {1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1},
 {1,1,1,0,1,0,1,1,1,3,1,1,1,0,1,0,1,1,1},
 {1,0,0,0,1,0,1,2,2,2,1,0,0,0,0,0,0,0,1},
-{1,0,1,1,1,1,1,2,1,2,1,1,1,0,1,1,1,0,1},
-{1,0,1,0,0,0,1,2,1,2,2,2,1,0,1,0,0,0,1},
-{1,0,1,0,1,0,1,1,1,1,1,3,1,0,1,0,1,0,1},
-{1,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,1},
+{1,0,0,0,1,1,1,2,2,2,1,1,1,0,0,0,0,0,1},
+{1,0,0,0,0,0,1,2,2,2,2,2,1,0,0,0,0,0,1},
+{1,0,0,0,1,0,1,1,1,1,1,3,1,0,0,0,0,0,1},
+{1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 {1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1}};
 
 float MazeElements[361][3];
@@ -89,7 +90,6 @@ float MazeElements[361][3];
 void error_callback(int error, const char* description) {
 	fputs(description, stderr);
 }
-
 
 
 void keyCallback(GLFWwindow* window,int key,int scancode,int action,int mods) {
@@ -248,36 +248,16 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     */
 
     CreateMazeVec(1);
-
     for(int i = 0; i <361; i++){//mur w ziemi nizszy
         if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
-            glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],-2.0f,MazeElements[i][2]));
-            glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
-            glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
-        }
-    }
 
-    for(int i = 0; i <361; i++){//mur w ziemi wyzszy
-        if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
-            glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],0.0f,MazeElements[i][2]));
-            glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
-            glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
-        }
-    }
+            for(float j = -2.0f; j < 5; j+= 2.0f){//4 warstwy muru
 
-    for(int i = 0; i <361; i++){//pierwsza warstwa scian
-        if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
-            glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],2.0f,MazeElements[i][2]));
-            glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
-            glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
-        }
-    }
+                glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],j,MazeElements[i][2]));
+                glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+                glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
+            }
 
-    for(int i = 0; i <361; i++){//druga warstwa scian
-        if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
-            glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],4.0f,MazeElements[i][2]));
-            glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
-            glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
         }
     }
 
@@ -366,6 +346,41 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
 int main(void)
 {
+        CreateMazeVec(1);
+        static float triangles[100000][12];
+        int triangleindex = 0;
+        for(int i = 0; i <361; i++){//mur w ziemi nizszy
+            if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
+                for(float k=-2.0f; k <5.0f; k+= 2.0f){
+                    for(int j=0;j<12;j++){
+                        triangles[triangleindex][0] = myCubeVertices[12*j]+MazeElements[i][0];
+                        triangles[triangleindex][4] = myCubeVertices[12*j+4]+MazeElements[i][0];
+                        triangles[triangleindex][8] = myCubeVertices[12*j+8]+MazeElements[i][0];
+                        triangles[triangleindex][1] = myCubeVertices[12*j+1]+k;
+                        triangles[triangleindex][5] = myCubeVertices[12*j+5]+k;
+                        triangles[triangleindex][9] = myCubeVertices[12*j+9]+k;
+                        triangles[triangleindex][2] = myCubeVertices[12*j+2]+MazeElements[i][2];
+                        triangles[triangleindex][6] = myCubeVertices[12*j+6]+MazeElements[i][2];
+                        triangles[triangleindex][10] = myCubeVertices[12*j+10]+MazeElements[i][2];
+                        triangles[triangleindex][3] = 1.0f;
+                        triangles[triangleindex][7] = 1.0f;
+                        triangles[triangleindex][11] = 1.0f;
+                        triangleindex++;
+                    }
+                }
+            }
+
+        }
+
+
+    for(int j = 0; j < 3; j++){
+        for(int k = 0; k < 12; k++){
+            printf("%lf ",triangles[j][k]);
+        }
+        printf("\n");
+    }
+    printf("%d\n",triangleindex);
+
 	GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
 
 	glfwSetErrorCallback(error_callback);//Zarejestruj procedurę obsługi błędów
