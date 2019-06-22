@@ -62,26 +62,27 @@ glm::mat3 cbmMatrix = glm::mat3(
 
 
 
+
 int MazeBase[19][19] = {
-{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-{1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,1,1,0,1,1,1,1,1,1,1,0,0,0,1},
-{1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,1},
-{1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,0,0,1},
-{1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1},
-{1,0,0,0,0,1,0,0,1,1,1,0,1,3,1,1,1,0,1},
-{1,0,0,0,0,1,0,0,1,0,0,0,1,2,2,2,1,0,1},
-{1,0,0,0,0,1,1,1,1,1,1,1,2,2,1,2,1,1,1},
-{1,0,0,1,0,0,0,0,1,0,0,1,2,1,1,2,3,0,1},
-{1,1,0,1,1,0,1,1,1,0,0,1,3,1,1,1,1,0,1},
-{1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1},
-{1,1,1,0,1,0,1,1,1,3,1,1,1,0,1,0,1,1,1},
-{1,0,0,0,1,0,1,2,2,2,1,0,0,0,0,0,0,0,1},
-{1,0,0,0,1,1,1,2,2,2,1,1,1,0,0,0,0,0,1},
-{1,0,0,0,0,0,1,2,2,2,2,2,1,0,0,0,0,0,1},
-{1,0,0,0,1,0,1,1,1,1,1,3,1,0,0,0,0,0,1},
-{1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1}};
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0},
+{0,1,1,1,1,0,0,1,0,0,0,0,0,0,0,1,1,1,0},
+{0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,1,1,0},
+{0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,1,1,0},
+{0,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0},
+{0,1,1,1,1,0,1,1,0,0,0,1,0,3,0,0,0,1,0},
+{0,1,1,1,1,0,1,1,0,1,1,1,0,2,2,2,0,1,0},
+{0,1,1,1,1,0,0,0,0,0,0,0,2,2,0,2,0,0,0},
+{0,1,1,0,1,1,1,1,0,1,1,0,2,0,0,2,2,2,0},
+{0,0,1,0,0,1,0,0,0,1,1,0,3,0,0,0,0,3,0},
+{0,0,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,0},
+{0,0,0,1,0,1,0,0,0,3,0,0,0,1,0,1,0,0,0},
+{0,1,1,1,0,1,0,2,2,2,0,1,1,1,1,1,1,1,0},
+{0,1,1,1,0,0,0,2,2,2,0,0,0,1,1,1,1,1,0},
+{0,1,1,1,1,1,0,2,2,2,2,2,0,1,1,1,1,1,0},
+{0,1,1,1,0,1,0,0,0,0,0,3,0,1,1,1,1,1,0},
+{0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+{0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0}};
 
 float MazeElements[361][3];
 
@@ -153,12 +154,12 @@ void freeOpenGLProgram(GLFWwindow* window) {
     //************Tutaj umieszczaj kod, który należy wykonać po zakończeniu pętli głównej************
 }
 
-void CreateMazeVec(int Check)
+void CreateMazeVec(int Check, int Check2)
 {
     int MazeIndex = 0;
     for(int i = 0;i < 19; i++){
         for(int j = 0;j < 19; j++){
-            if(MazeBase[i][j] == Check){
+            if(MazeBase[i][j] == Check || MazeBase[i][j] == Check2){
                 MazeElements[MazeIndex][0] = float(18 - 2*j);
                 MazeElements[MazeIndex][1] = 0.0f;
                 MazeElements[MazeIndex][2] = float(37 - 2*i);
@@ -206,9 +207,6 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
     glm::mat4 P=glm::perspective(50.0f*PI/180.0f, aspectRatio, 0.01f, 50.0f); //Wylicz macierz rzutowania
 
-    //float MazeY = 0.0f;
-
-
     spLambert->use();//Aktywacja programu cieniującego
     //Przeslij parametry programu cieniującego do karty graficznej
     glUniform4f(spLambert->u("color"),0,1,0,1);
@@ -225,29 +223,13 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     glUniformMatrix4fv(spColored->u("P"),1,false,glm::value_ptr(P));
     glUniformMatrix4fv(spColored->u("V"),1,false,glm::value_ptr(V));
 
-    //glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
     glEnableVertexAttribArray(spColored->a("vertex"));
     glVertexAttribPointer(spColored->a("vertex"),4,GL_FLOAT,false,0,myCubeVertices);
 
     glEnableVertexAttribArray(spColored->a("color"));
     glVertexAttribPointer(spColored->a("color"),4,GL_FLOAT,false,0,myCubeColors);
-    //glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
 
-    /*
-    glm::mat4 M2 = glm::translate(M,glm::vec3(2.0f,0.0f,-1.0f));
-    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M2));
-    glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
-
-    M2 = glm::translate(M,glm::vec3(-2.0f,2.0f,-1.0f));
-    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M2));
-    glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
-
-    M2 = glm::translate(M,glm::vec3(2.0f,2.0f,-1.0f));
-    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M2));
-    glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
-    */
-
-    CreateMazeVec(1);
+    CreateMazeVec(0,0);
     for(int i = 0; i <361; i++){//mur w ziemi nizszy
         if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
 
@@ -261,7 +243,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
         }
     }
 
-    CreateMazeVec(0);
+    CreateMazeVec(1,3);
     glVertexAttribPointer(spColored->a("color"),4,GL_FLOAT,false,0,myCubeColors1);
 
     for(int i = 0; i <361; i++){//podloga 1 poziom
@@ -272,21 +254,13 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
         }
     }
 
-    CreateMazeVec(2);
+    CreateMazeVec(2,2);
     for(int i = 0; i <361; i++){//podloga 1 poziom
         if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
             glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],-2.0f,MazeElements[i][2]));
             glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
             glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
             M1 = glm::translate(M,glm::vec3(MazeElements[i][0],0.0f,MazeElements[i][2]));
-            glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
-            glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
-        }
-    }
-    CreateMazeVec(3);
-    for(int i = 0; i <361; i++){//podloga 1 poziom
-        if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
-            glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],-2.0f,MazeElements[i][2]));
             glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
             glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
         }
@@ -298,13 +272,33 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     glEnableVertexAttribArray(spColored->a("color"));
     glVertexAttribPointer(spColored->a("color"),4,GL_FLOAT,false,0,myStairsColors);
 
-    glm::mat4 M1 = glm::translate(M,glm::vec3(-1.0f, -1.0f, 0.0f));//PIERWSZE SCHODY
-    M1 = glm::translate(M1,glm::vec3(-4.0f, 0.0f, 4.0f));
-    M1 = glm::scale(M1, glm::vec3(2.0f, 2.0f, 2.0f));
+    //PIERWSZE SCHODY
+    glm::mat4 M1 = glm::translate(M,glm::vec3(-4.0f, 0.0f, 5.0f));
     glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
-    M1 = glm::translate(M,glm::vec3(-1.0f, -1.0f, 0.0f));//DRUGIE SCHODY
+    M1 = glm::translate(M,glm::vec3(-6.0f, 0.0f, 17.0f));
+    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
+
+    M1 = glm::translate(M,glm::vec3(-16.0f, 0.0f, 17.0f));
+    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
+
+    M1 = glm::translate(M,glm::vec3(-8.0f, 0.0f, 25.0f));
+    M1 = glm::rotate(M1, 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
+    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
+
+    M1 = glm::translate(M,glm::vec3(0.0f, 0.0f, 13.0f));
+    M1 = glm::rotate(M1, 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
+    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
+
+
+
+
+    /*M1 = glm::translate(M,glm::vec3(-1.0f, -1.0f, 0.0f));//DRUGIE SCHODY
     M1 = glm::translate(M1,glm::vec3(2.0f, 0.0f, 14.0f));
     M1 = glm::scale(M1, glm::vec3(2.0f, 2.0f, 2.0f));
     M1 = glm::rotate(M1,3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -337,7 +331,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
     glDisableVertexAttribArray(spColored->a("vertex"));
     glDisableVertexAttribArray(spColored->a("color"));
-
+    */
 
 
     glfwSwapBuffers(window); //Przerzuć tylny bufor na przedni
@@ -346,7 +340,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
 int main(void)
 {
-        CreateMazeVec(1);
+        CreateMazeVec(0,0);
         static float triangles[100000][12];
         int triangleindex = 0;
         for(int i = 0; i <361; i++){//mur w ziemi nizszy
@@ -372,13 +366,97 @@ int main(void)
 
         }
 
-
-    for(int j = 0; j < 3; j++){
-        for(int k = 0; k < 12; k++){
-            printf("%lf ",triangles[j][k]);
+    CreateMazeVec(1,3);
+    for(int i = 0; i <361; i++){//podloga 1 poziom
+        if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
+             for(int j=0;j<12;j++){
+                triangles[triangleindex][0] = myCubeVertices[12*j]+MazeElements[i][0];
+                triangles[triangleindex][4] = myCubeVertices[12*j+4]+MazeElements[i][0];
+                triangles[triangleindex][8] = myCubeVertices[12*j+8]+MazeElements[i][0];
+                triangles[triangleindex][1] = myCubeVertices[12*j+1]-2.0f;
+                triangles[triangleindex][5] = myCubeVertices[12*j+5]-2.0f;
+                triangles[triangleindex][9] = myCubeVertices[12*j+9]-2.0f;
+                triangles[triangleindex][2] = myCubeVertices[12*j+2]+MazeElements[i][2];
+                triangles[triangleindex][6] = myCubeVertices[12*j+6]+MazeElements[i][2];
+                triangles[triangleindex][10] = myCubeVertices[12*j+10]+MazeElements[i][2];
+                triangles[triangleindex][3] = 1.0f;
+                triangles[triangleindex][7] = 1.0f;
+                triangles[triangleindex][11] = 1.0f;
+                triangleindex++;
+            }
         }
-        printf("\n");
     }
+
+    CreateMazeVec(2,2);
+    for(int i = 0; i <361; i++){//podloga 1 poziom
+        if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
+            for(float j =-2.0; j < 1.0f; j += 2.0f){
+                for(int j=0;j<12;j++){
+                    triangles[triangleindex][0] = myCubeVertices[12*j]+MazeElements[i][0];
+                    triangles[triangleindex][4] = myCubeVertices[12*j+4]+MazeElements[i][0];
+                    triangles[triangleindex][8] = myCubeVertices[12*j+8]+MazeElements[i][0];
+                    triangles[triangleindex][1] = myCubeVertices[12*j+1]-2.0f;
+                    triangles[triangleindex][5] = myCubeVertices[12*j+5]-2.0f;
+                    triangles[triangleindex][9] = myCubeVertices[12*j+9]-2.0f;
+                    triangles[triangleindex][2] = myCubeVertices[12*j+2]+MazeElements[i][2];
+                    triangles[triangleindex][6] = myCubeVertices[12*j+6]+MazeElements[i][2];
+                    triangles[triangleindex][10] = myCubeVertices[12*j+10]+MazeElements[i][2];
+                    triangles[triangleindex][3] = 1.0f;
+                    triangles[triangleindex][7] = 1.0f;
+                    triangles[triangleindex][11] = 1.0f;
+                    triangleindex++;
+                }
+            }
+        }
+    }
+    float StairsTranslations[3][3] = {
+    {-4,0,5},
+    {-6,0,17},
+    {-16,0,17}};
+    for(int k = 0; k < 3; k++){
+        for(int j = 0; j < 24; j++)
+        {
+            triangles[triangleindex][0] = myStairsVertices[24*j]+StairsTranslations[k][0];
+            triangles[triangleindex][4] = myStairsVertices[24*j+4]+StairsTranslations[k][0];
+            triangles[triangleindex][8] = myStairsVertices[24*j+8]+StairsTranslations[k][0];
+            triangles[triangleindex][1] = myStairsVertices[24*j+1]+StairsTranslations[k][1];
+            triangles[triangleindex][5] = myStairsVertices[24*j+5]+StairsTranslations[k][1];
+            triangles[triangleindex][9] = myStairsVertices[24*j+9]+StairsTranslations[k][1];
+            triangles[triangleindex][2] = myStairsVertices[24*j+2]+StairsTranslations[k][2];
+            triangles[triangleindex][6] = myStairsVertices[24*j+6]+StairsTranslations[k][2];
+            triangles[triangleindex][10] = myStairsVertices[24*j+10]+StairsTranslations[k][2];
+            triangles[triangleindex][3] = 1.0f;
+            triangles[triangleindex][7] = 1.0f;
+            triangles[triangleindex][11] = 1.0f;
+            triangleindex++;
+        }
+    }
+
+    /*StairsTranslations2[2][3] = {
+    {-8,0,25},
+    {0,0,13}};
+    for(int k = 0; k < 2; k++){
+        for(int j = 0; j < 24; j++)
+        {
+            triangles[triangleindex][0] = myStairsVertices[24*j]+StairsTranslations2[k][0];
+            triangles[triangleindex][4] = myStairsVertices[24*j+4]+StairsTranslations2[k][0];
+            triangles[triangleindex][8] = myStairsVertices[24*j+8]+StairsTranslations2[k][0];
+            triangles[triangleindex][1] = myStairsVertices[24*j+1]+StairsTranslations2[k][1];
+            triangles[triangleindex][5] = myStairsVertices[24*j+5]+StairsTranslations2[k][1];
+            triangles[triangleindex][9] = myStairsVertices[24*j+9]+StairsTranslations2[k][1];
+            triangles[triangleindex][2] = myStairsVertices[24*j+2]+StairsTranslations2[k][2];
+            triangles[triangleindex][6] = myStairsVertices[24*j+6]+StairsTranslations2[k][2];
+            triangles[triangleindex][10] = myStairsVertices[24*j+10]+StairsTranslations2[k][2];
+            triangles[triangleindex][3] = 1.0f;
+            triangles[triangleindex][7] = 1.0f;
+            triangles[triangleindex][11] = 1.0f;
+            triangleindex++;
+        }
+    }*/
+
+
+
+
     printf("%d\n",triangleindex);
 
 	GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
