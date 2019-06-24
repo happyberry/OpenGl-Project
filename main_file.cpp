@@ -584,14 +584,14 @@ int main(void)
     CreateMazeVec(2,2);
     for(int i = 0; i <361; i++){//podloga 1 poziom
         if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
-            for(float j =-2.0; j < 1.0f; j += 2.0f){
+            for(float k =-2.0; k < 1.0f; k += 2.0f){
                 for(int j=0;j<12;j++){
                     triangles[triangleindex][0] = myCubeVertices[12*j]+MazeElements[i][0];
                     triangles[triangleindex][4] = myCubeVertices[12*j+4]+MazeElements[i][0];
                     triangles[triangleindex][8] = myCubeVertices[12*j+8]+MazeElements[i][0];
-                    triangles[triangleindex][1] = myCubeVertices[12*j+1]+j;
-                    triangles[triangleindex][5] = myCubeVertices[12*j+5]+j;
-                    triangles[triangleindex][9] = myCubeVertices[12*j+9]+j;
+                    triangles[triangleindex][1] = myCubeVertices[12*j+1]+k;
+                    triangles[triangleindex][5] = myCubeVertices[12*j+5]+k;
+                    triangles[triangleindex][9] = myCubeVertices[12*j+9]+k;
                     triangles[triangleindex][2] = myCubeVertices[12*j+2]+MazeElements[i][2];
                     triangles[triangleindex][6] = myCubeVertices[12*j+6]+MazeElements[i][2];
                     triangles[triangleindex][10] = myCubeVertices[12*j+10]+MazeElements[i][2];
@@ -610,7 +610,7 @@ int main(void)
     {-8,0,25},
     {0,0,13}};
 
-    for(int k = 0; k < 3; k++){
+    for(int k = 0; k < 5; k++){
         for(int j = 0; j < 24; j++)
         {
             int sign;
@@ -630,31 +630,6 @@ int main(void)
             triangleindex++;
         }
     }
-
-    /*StairsTranslations2[2][3] = {
-    {-8,0,25},
-    {0,0,13}};
-    for(int k = 0; k < 2; k++){
-        for(int j = 0; j < 24; j++)
-        {
-            triangles[triangleindex][0] = myStairsVertices[24*j]+StairsTranslations2[k][0];
-            triangles[triangleindex][4] = myStairsVertices[24*j+4]+StairsTranslations2[k][0];
-            triangles[triangleindex][8] = myStairsVertices[24*j+8]+StairsTranslations2[k][0];
-            triangles[triangleindex][1] = myStairsVertices[24*j+1]+StairsTranslations2[k][1];
-            triangles[triangleindex][5] = myStairsVertices[24*j+5]+StairsTranslations2[k][1];
-            triangles[triangleindex][9] = myStairsVertices[24*j+9]+StairsTranslations2[k][1];
-            triangles[triangleindex][2] = myStairsVertices[24*j+2]+StairsTranslations2[k][2];
-            triangles[triangleindex][6] = myStairsVertices[24*j+6]+StairsTranslations2[k][2];
-            triangles[triangleindex][10] = myStairsVertices[24*j+10]+StairsTranslations2[k][2];
-            triangles[triangleindex][3] = 1.0f;
-            triangles[triangleindex][7] = 1.0f;
-            triangles[triangleindex][11] = 1.0f;
-            triangleindex++;
-        }
-    }*/
-
-
-
 
     printf("%d\n",triangleindex);
 
