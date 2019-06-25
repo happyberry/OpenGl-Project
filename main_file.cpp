@@ -79,7 +79,7 @@ int MazeBase[19][19] = {
 {0,1,1,1,1,0,1,1,0,1,1,1,0,2,2,2,0,1,0},
 {0,1,1,1,1,0,0,0,0,0,0,0,2,2,0,2,0,0,0},
 {0,1,1,0,1,1,1,1,0,1,1,0,2,0,0,2,2,2,0},
-{0,0,1,0,0,1,0,0,0,1,1,0,3,0,0,0,0,3,0},
+{0,0,0,0,0,1,0,0,0,1,1,0,3,0,0,0,0,3,0},
 {0,0,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,0},
 {0,0,0,1,0,1,0,0,0,3,0,0,0,1,0,1,0,0,0},
 {0,1,1,1,0,1,0,2,2,2,0,1,1,1,1,1,1,1,0},
@@ -690,7 +690,7 @@ int main(void)
 
     for(int j = 0; j < myGravesvertnumber*2.3; j++)
         {
-            if(j%4==0) triangles[triangleindex][j%12] = myGravesVertices[j]+15.0f;
+            if(j%4==0) triangles[triangleindex][j%12] = myGravesVertices[j]+14.0f;
             else if(j%4==1) triangles[triangleindex][j%12] = myGravesVertices[j]-1.3f;
             else if (j%4==2) triangles[triangleindex][j%12] = myGravesVertices[j]+25.0f;
             else triangles[triangleindex][j%12] = myGravesVertices[j];
