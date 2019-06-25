@@ -572,15 +572,15 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     //glEnableVertexAttribArray(spTextured->a("texCoord"));
     glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,myGrave0TextCoords);
 
-    glm::mat4 M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 4.0f));
+    glm::mat4 M2 = glm::translate(M,glm::vec3(-13.0f, -1.3f, 4.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
     glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
 
-    M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 6.0f));
+    M2 = glm::translate(M,glm::vec3(-13.0f, -1.3f, 6.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
     glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
 
-    M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 8.0f));
+    M2 = glm::translate(M,glm::vec3(-13.0f, -1.3f, 8.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
     glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
 
@@ -746,7 +746,7 @@ int main(void)
     for(int j = 0; j < myGravesvertnumber*2.3; j++)
         {
             if(j%4==0) triangles[triangleindex][j%12] = myGravesVertices[j]+15.0f;
-            else if(j%4==1) triangles[triangleindex][j%12] = myGravesVertices[j]-1.0f;
+            else if(j%4==1) triangles[triangleindex][j%12] = myGravesVertices[j]-1.3f;
             else if (j%4==2) triangles[triangleindex][j%12] = myGravesVertices[j]+25.0f;
             else triangles[triangleindex][j%12] = myGravesVertices[j];
             if(j%12==11) triangleindex++;
