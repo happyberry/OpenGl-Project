@@ -25,13 +25,16 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include <stdlib.h>
 #include <stdio.h>
 #include "constants.h"
-#include "allmodels.h"
+//#include "allmodels.h"
 #include<iostream>
 #include "lodepng.h"
 #include "shaderprogram.h"
 #include "myCube.h"
 #include "myStairs.h"
-//#include "nCube.h"
+#include "myGrave0.h"
+#include "myGrave1.h"
+#include "mySkull.h"
+#include "mySlender.h"
 using namespace std;
 
 float speed_x=0;
@@ -45,7 +48,9 @@ float sensitivity = 0.2;
 float yaw = 90, pitch = 0;
 int collisionRecursionDepth;
 bool firstMouse = true;
-GLuint tex;
+GLuint tex0;
+GLuint tex1;
+GLuint tex2;
 
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 glm::vec3 cameraPosition = glm::vec3(0.0f, 5.0f, 0.0f);
@@ -65,9 +70,9 @@ glm::mat3 cbmMatrix = glm::mat3(
 
 int MazeBase[19][19] = {
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0},
-{0,1,1,1,1,0,0,1,0,0,0,0,0,0,0,1,1,1,0},
-{0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,1,1,0},
+{0,1,1,1,1,1,1,1,4,4,4,1,1,1,1,1,1,1,0},
+{0,1,1,1,1,0,0,1,4,4,4,0,0,0,0,1,1,1,0},
+{0,1,1,1,1,1,0,1,0,0,0,0,1,1,0,1,1,1,0},
 {0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,1,1,0},
 {0,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0},
 {0,1,1,1,1,0,1,1,0,0,0,1,0,3,0,0,0,1,0},
@@ -161,7 +166,7 @@ void windowResizeCallback(GLFWwindow* window,int width,int height) {
 //Procedura inicjująca
 void initOpenGLProgram(GLFWwindow* window) {
     initShaders();
-    tex=readTexture("bricks.png");
+
 	//************Tutaj umieszczaj kod, który należy wykonać raz, na początku programu************
 	glClearColor(0,0,0,1);
 	glEnable(GL_DEPTH_TEST);
@@ -169,13 +174,18 @@ void initOpenGLProgram(GLFWwindow* window) {
 	glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetKeyCallback(window,keyCallback);
+	tex0=readTexture("bricks.png");
+	tex1=readTexture("nextstone.png");
+	tex2=readTexture("graves.png");
 }
 
 
 //Zwolnienie zasobów zajętych przez program
 void freeOpenGLProgram(GLFWwindow* window) {
     freeShaders();
-    glDeleteTextures(1,&tex);
+    glDeleteTextures(1,&tex0);
+    glDeleteTextures(1,&tex1);
+    glDeleteTextures(1,&tex2);
     //************Tutaj umieszczaj kod, który należy wykonać po zakończeniu pętli głównej************
 }
 
@@ -442,9 +452,11 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     glEnableVertexAttribArray(spTextured->a("texCoord"));
     glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,texCoords);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,tex);
+
     glUniform1i(spLambertTextured->u("tex"),0);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,tex0);
 
     CreateMazeVec(0,0);
     for(int i = 0; i <361; i++){//mur w ziemi nizszy
@@ -453,32 +465,25 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
             for(float j = -2.0f; j < 5; j+= 2.0f){//4 warstwy muru
 
                 glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],j,MazeElements[i][2]));
-                glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+                glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
                 glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
             }
 
         }
     }
 
-    glDisableVertexAttribArray(spTextured->a("vertex"));
-    glDisableVertexAttribArray(spTextured->a("texCoord"));
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,tex1);
 
-
-    spColored->use();
-    glUniformMatrix4fv(spColored->u("P"),1,false,glm::value_ptr(P));
-    glUniformMatrix4fv(spColored->u("V"),1,false,glm::value_ptr(V));
-
-    glEnableVertexAttribArray(spColored->a("vertex"));
-    glVertexAttribPointer(spColored->a("vertex"),4,GL_FLOAT,false,0,myCubeVertices);
 
     CreateMazeVec(1,3);
-    glEnableVertexAttribArray(spColored->a("color"));
-    glVertexAttribPointer(spColored->a("color"),4,GL_FLOAT,false,0,myCubeColors1);
+    //glEnableVertexAttribArray(spColored->a("color"));
+    //glVertexAttribPointer(spColored->a("color"),4,GL_FLOAT,false,0,myCubeColors1);
 
     for(int i = 0; i <361; i++){//podloga 1 poziom
         if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
             glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],-2.0f,MazeElements[i][2]));
-            glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+            glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
             glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
         }
     }
@@ -487,31 +492,32 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     for(int i = 0; i <361; i++){//podloga 1 poziom
         if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
             glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],-2.0f,MazeElements[i][2]));
-            glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+            glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
             glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
             M1 = glm::translate(M,glm::vec3(MazeElements[i][0],0.0f,MazeElements[i][2]));
-            glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+            glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
             glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
         }
     }
 
-    glEnableVertexAttribArray(spColored->a("vertex"));
-    glVertexAttribPointer(spColored->a("vertex"),4,GL_FLOAT,false,0,myStairsVertices);
+    //glEnableVertexAttribArray(spTextured->a("vertex"));
+    glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,myStairsVertices);
 
-    glEnableVertexAttribArray(spColored->a("color"));
-    glVertexAttribPointer(spColored->a("color"),4,GL_FLOAT,false,0,myStairsColors);
+    //glEnableVertexAttribArray(spTextured->a("texCoord"));
+    glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,myStairsTexCoords);
+
 
     //PIERWSZE SCHODY
     glm::mat4 M1 = glm::translate(M,glm::vec3(-4.0f, 0.0f, 5.0f));
-    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
     M1 = glm::translate(M,glm::vec3(-6.0f, 0.0f, 17.0f));
-    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
     M1 = glm::translate(M,glm::vec3(-16.0f, 0.0f, 17.0f));
-    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
     //glEnableVertexAttribArray(spColored->a("vertex"));
@@ -519,14 +525,62 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
     M1 = glm::translate(M,glm::vec3(-8.0f, 0.0f, 25.0f));
     M1 = glm::rotate(M1, 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
-    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
     M1 = glm::translate(M,glm::vec3(0.0f, 0.0f, 13.0f));
     M1 = glm::rotate(M1, 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
-    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M1));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,tex2);
+
+    //glEnableVertexAttribArray(spTextured->a("vertex"));
+    glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,myGrave0Vertices);
+
+    //glEnableVertexAttribArray(spTextured->a("texCoord"));
+    glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,myGrave0TextCoords);
+
+    glm::mat4 M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 4.0f));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
+    glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
+
+    M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 6.0f));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
+    glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
+
+    M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 8.0f));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
+    glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
+
+    glEnableVertexAttribArray(spTextured->a("vertex"));
+    glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,myGrave1Vertices);
+
+    glEnableVertexAttribArray(spTextured->a("texCoord"));
+    glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,myGrave1TextCoords);
+
+    M2 = glm::translate(M,glm::vec3(13.0f, -1.0f, 4.0f));
+    M2 = glm::scale(M2, glm::vec3(2.0f, 2.0f, 2.0f));
+
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
+    glDrawArrays( GL_TRIANGLES, 0, myGrave1vertnumber);
+
+    /*glEnableVertexAttribArray(spTextured->a("vertex"));
+    glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,mySkullVertices);
+
+    glEnableVertexAttribArray(spTextured->a("texCoord"));
+    glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,mySkullTextCoords);
+
+    M2 = glm::translate(M,glm::vec3(0.0f, 0.0f, 0.0f));
+    M2 = glm::scale(M2, glm::vec3(0.0001f, 0.0001f, 0.0001f));
+    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
+    glDrawArrays( GL_TRIANGLES, 0, mySkullvertnumber);*/
+
+
+    glDisableVertexAttribArray(spTextured->a("vertex"));
+    glDisableVertexAttribArray(spTextured->a("texCoord"));
 
     glfwSwapBuffers(window); //Przerzuć tylny bufor na przedni
 }
@@ -603,6 +657,8 @@ int main(void)
             }
         }
     }
+
+
     float StairsTranslations[5][3] = {
     {-4,0,5},
     {-6,0,17},
@@ -630,6 +686,19 @@ int main(void)
             triangleindex++;
         }
     }
+
+    for(int k = 0; k < 3; k++){
+        for(int j = 0; j < myGrave0vertnumber; j++)
+        {
+            if(j%4==0) triangles[triangleindex][j%12] = myGrave0Vertices[j]-13.0f;
+            else if(j%4==1) triangles[triangleindex][j%12] = myGrave0Vertices[j]-1.0f;
+            else if (j%4==2) triangles[triangleindex][j%12] = myGrave0Vertices[j]+(2*k+4);
+            else triangles[triangleindex][j%12] = myGrave0Vertices[j];
+            if(j%12==1) triangleindex++;
+        }
+    }
+
+
 
     printf("%d\n",triangleindex);
 
@@ -709,16 +778,16 @@ int main(void)
             velocity.y += 0.4;
         }
         else framesSinceLastJump++;
-        if (velocity.y < 0) velocity.y = 0;
+        //if (velocity.y < 0) velocity.y = 0;
         //if (velocity.y > 0) velocity.y *= 2;
         if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0) {
             if (!spacePressed) velocity *= speed;
             isCollision(cameraPosition, velocity, 1, triangles, triangleindex);
         }
-        if(!isCollision(cameraPosition, gravity, 1, triangles, triangleindex)) {
+        /*if(!isCollision(cameraPosition, gravity, 1, triangles, triangleindex)) {
             gravity.y -= 0.01;
         }
-        else gravity.y = 0;
+        else gravity.y = 0;*/
 
 		drawScene(window,angle_x,angle_y); //Wykonaj procedurę rysującą
 		glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
