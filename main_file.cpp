@@ -34,6 +34,8 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "myGrave0.h"
 #include "myGraves.h"
 #include "mySkull.h"
+#include "mySlender.h"
+#include "myZombie.h"
 using namespace std;
 
 float speed_x=0;
@@ -47,6 +49,7 @@ float sensitivity = 0.2;
 float yaw = 90, pitch = 0;
 int collisionRecursionDepth;
 bool firstMouse = true;
+
 GLuint tex0;
 GLuint tex1;
 GLuint tex2;
@@ -65,8 +68,15 @@ glm::mat3 cbmMatrix = glm::mat3(
     glm::vec3(0, float(1) / ellipsoid.y, 0),
     glm::vec3(0, 0, float(1) / ellipsoid.z));
 
+int framesAfterSkullAppearance[3] = {0};
+bool skullAppeared[3] = {0};
+float skullsSpeed[3] = {0.05, -0.05, -0.05};
+float skullsYRotations[3] = {-0.64f, 2.5f, 2.5f};
 
-
+glm::vec3 skullsPositions[3] = {
+    glm::vec3(-5.0f, -0.2f, 3.0f),
+    glm::vec3(14.0f, -0.2f, 22.5f),
+    glm::vec3(14.0f, -0.2f, 24.0f)};
 
 int MazeBase[19][19] = {
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -79,7 +89,7 @@ int MazeBase[19][19] = {
 {0,1,1,1,1,0,1,1,0,1,1,1,0,2,2,2,0,1,0},
 {0,1,1,1,1,0,0,0,0,0,0,0,2,2,0,2,0,0,0},
 {0,1,1,0,1,1,1,1,0,1,1,0,2,0,0,2,2,2,0},
-{0,0,0,0,0,1,0,0,0,1,1,0,3,0,0,0,0,3,0},
+{0,0,1,0,0,1,0,0,0,1,1,0,3,0,0,0,0,3,0},
 {0,0,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,0},
 {0,0,0,1,0,1,0,0,0,3,0,0,0,1,0,1,0,0,0},
 {0,1,1,1,0,1,0,2,2,2,0,1,1,1,1,1,1,1,0},
@@ -177,7 +187,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	tex0=readTexture("darkbrick.png");
 	tex1=readTexture("nextstone.png");
 	tex2=readTexture("graves.png");
-    tex3=readTexture("rough.png");
+    tex3=readTexture("graves.png");
 }
 
 
@@ -440,6 +450,28 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 
     glm::mat4 M=glm::mat4(1.0f);
 
+    //glm::mat4 M1 = glm::translate(M,glm::vec3(-2.0f,0.0f,-1.0f));
+    //glUniformMatrix4fv(spLambert->u("M"),1,false,glm::value_ptr(M1));
+
+
+    /*spColored->use();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glUniformMatrix4fv(spColored->u("P"),1,false,glm::value_ptr(P));
+    glUniformMatrix4fv(spColored->u("V"),1,false,glm::value_ptr(V));
+
+    glEnableVertexAttribArray(spColored->a("vertex"));
+    glVertexAttribPointer(spColored->a("vertex"),4,GL_FLOAT,false,0,mySkullVertices);
+
+    glm::mat4 M3 = glm::translate(M, glm::vec3(-4.0f, -1.0f, 3.0f));
+    M3 = glm::rotate(M3, 3.14f/2, glm::vec3(0.0f, 1.0f, 0.0f));
+    M3 = glm::scale(M3,glm::vec3(0.04f, 0.04f, 0.04f));
+    glUniformMatrix4fv(spColored->u("M"),1,false,glm::value_ptr(M3));
+    glDrawArrays( GL_TRIANGLES, 0, mySkullvertnumber);
+
+    glDisableVertexAttribArray(spColored->a("vertex"));*/
+
     spTextured->use();
     glUniformMatrix4fv(spTextured->u("P"),1,false,glm::value_ptr(P));
     glUniformMatrix4fv(spTextured->u("V"),1,false,glm::value_ptr(V));
@@ -467,13 +499,18 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
                 glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
                 glDrawArrays( GL_TRIANGLES, 0, myCubeVertexCount );
             }
+
         }
     }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,tex1);
 
+
     CreateMazeVec(1,3);
+    //glEnableVertexAttribArray(spColored->a("color"));
+    //glVertexAttribPointer(spColored->a("color"),4,GL_FLOAT,false,0,myCubeColors1);
+
     for(int i = 0; i <361; i++){//podloga 1 poziom
         if(!(MazeElements[i][0] == 0.0f && MazeElements[i][1] == 0.0f && MazeElements[i][2] == 0.0f)){
             glm::mat4 M1 = glm::translate(M,glm::vec3(MazeElements[i][0],-2.0f,MazeElements[i][2]));
@@ -494,28 +531,35 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
         }
     }
 
+    //glEnableVertexAttribArray(spTextured->a("vertex"));
     glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,myStairsVertices);
+
+    //glEnableVertexAttribArray(spTextured->a("texCoord"));
     glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,myStairsTexCoords);
 
 
-    glm::mat4 M1 = glm::translate(M,glm::vec3(-4.0f, 0.0f, 5.0f));//PIERWSZE SCHODY
+    //PIERWSZE SCHODY
+    glm::mat4 M1 = glm::translate(M,glm::vec3(-4.0f, 0.0f, 5.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
-    M1 = glm::translate(M,glm::vec3(-6.0f, 0.0f, 17.0f));//DRUGIE
+    M1 = glm::translate(M,glm::vec3(-6.0f, 0.0f, 17.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
-    M1 = glm::translate(M,glm::vec3(-16.0f, 0.0f, 17.0f));//TRZECIE
+    M1 = glm::translate(M,glm::vec3(-16.0f, 0.0f, 17.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
-    M1 = glm::translate(M,glm::vec3(-8.0f, 0.0f, 25.0f));//PIERWSZE ODWROCONE
+    //glEnableVertexAttribArray(spColored->a("vertex"));
+    //glVertexAttribPointer(spColored->a("vertex"),4,GL_FLOAT,false,0,myStairsVerticesRotated);
+
+    M1 = glm::translate(M,glm::vec3(-8.0f, 0.0f, 25.0f));
     M1 = glm::rotate(M1, 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
 
-    M1 = glm::translate(M,glm::vec3(0.0f, 0.0f, 13.0f));//DRUGIE ODWROCONE
+    M1 = glm::translate(M,glm::vec3(0.0f, 0.0f, 13.0f));
     M1 = glm::rotate(M1, 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M1));
     glDrawArrays( GL_TRIANGLES, 0, myStairsVertexCount);
@@ -524,48 +568,61 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,tex2);
 
+    //glEnableVertexAttribArray(spTextured->a("vertex"));
     glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,myGrave0Vertices);
+
+    //glEnableVertexAttribArray(spTextured->a("texCoord"));
     glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,myGrave0TextCoords);
 
-    glm::mat4 M2 = glm::translate(M,glm::vec3(-13.0f, -1.3f, 4.0f));
+    glm::mat4 M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 4.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
     glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
 
-    M2 = glm::translate(M,glm::vec3(-13.0f, -1.3f, 6.0f));
+    M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 6.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
     glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
 
-    M2 = glm::translate(M,glm::vec3(-13.0f, -1.3f, 8.0f));
+    M2 = glm::translate(M,glm::vec3(-13.0f, -1.0f, 8.0f));
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
     glDrawArrays( GL_TRIANGLES, 0, myGrave0vertnumber);
 
+    glEnableVertexAttribArray(spTextured->a("vertex"));
     glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,myGravesVertices);
+
+    glEnableVertexAttribArray(spTextured->a("texCoord"));
     glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,myGravesTextCoords);
 
     M2 = glm::translate(M,glm::vec3(15.0f, -1.0f, 25.0f));
+
     glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
     glDrawArrays( GL_TRIANGLES, 0, myGravesvertnumber);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,tex3);
+    for (int i = 0; i < 3; i++) {
+        if (glm::distance(cameraPosition, skullsPositions[i]) < 2 || skullAppeared[i]) {
 
-    glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,mySkullVertices);
-    glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,mySkullTextCoords);
+            skullAppeared[i] = true;
 
-    M2 = glm::translate(M,glm::vec3(0.5f, 0.5f, 3.0f));
-    M2 = glm::scale(M2, glm::vec3(0.1f, 0.1f, 0.1f));
-    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
-    glDrawArrays( GL_TRIANGLES, 0, mySkullvertnumber);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D,tex3);
 
-    M2 = glm::translate(M,glm::vec3(0.0f, 0.5f, 3.0f));
-    M2 = glm::scale(M2, glm::vec3(0.04f, 0.04f, 0.04f));
-    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
-    glDrawArrays( GL_TRIANGLES, 0, mySkullvertnumber);
+            glEnableVertexAttribArray(spTextured->a("vertex"));
+            glVertexAttribPointer(spTextured->a("vertex"),4,GL_FLOAT,false,0,mySkullVertices);
 
-    M2 = glm::translate(M,glm::vec3(-0.5f, 0.5f, 3.0f));
-    M2 = glm::scale(M2, glm::vec3(0.04f, 0.04f, 0.04f));
-    glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
-    glDrawArrays( GL_TRIANGLES, 0, mySkullvertnumber);
+            glEnableVertexAttribArray(spTextured->a("texCoord"));
+            glVertexAttribPointer(spTextured->a("texCoord"),2,GL_FLOAT,false,0,mySkullTextCoords);
+
+            if (framesAfterSkullAppearance[i] > 60) skullsPositions[i].x += skullsSpeed[i];
+            else framesAfterSkullAppearance[i]++;
+            M2 = glm::translate(M,skullsPositions[i]);
+            M2 = glm::scale(M2, glm::vec3(0.03f, 0.03f, 0.03f));
+            M2 = glm::rotate(M2, skullsYRotations[i], glm::vec3(0.0f, 1.0f, 0.0f));
+            M2 = glm::rotate(M2, -0.3f, glm::vec3(0.0f, 0.0f, 1.0f));
+            M2 = glm::rotate(M2, -0.3f, glm::vec3(1.0f, 0.0f, 0.0f));
+            glUniformMatrix4fv(spTextured->u("M"),1,false,glm::value_ptr(M2));
+            glDrawArrays( GL_TRIANGLES, 0, mySkullvertnumber-16500);
+        }
+    }
+
 
     glDisableVertexAttribArray(spTextured->a("vertex"));
     glDisableVertexAttribArray(spTextured->a("texCoord"));
@@ -690,8 +747,8 @@ int main(void)
 
     for(int j = 0; j < myGravesvertnumber*2.3; j++)
         {
-            if(j%4==0) triangles[triangleindex][j%12] = myGravesVertices[j]+14.0f;
-            else if(j%4==1) triangles[triangleindex][j%12] = myGravesVertices[j]-1.3f;
+            if(j%4==0) triangles[triangleindex][j%12] = myGravesVertices[j]+15.0f;
+            else if(j%4==1) triangles[triangleindex][j%12] = myGravesVertices[j]-1.0f;
             else if (j%4==2) triangles[triangleindex][j%12] = myGravesVertices[j]+25.0f;
             else triangles[triangleindex][j%12] = myGravesVertices[j];
             if(j%12==11) triangleindex++;
@@ -778,12 +835,11 @@ int main(void)
         }
         else framesSinceLastJump++;
         if (velocity.y < 0) velocity.y = 0;
-        //if (velocity.y > 0) velocity.y *= 2;
         if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0) {
             if (!spacePressed) velocity *= speed;
             isCollision(cameraPosition, velocity, 1, triangles, triangleindex);
         }
-        f(!isCollision(cameraPosition, gravity, 1, triangles, triangleindex)) {
+        if(!isCollision(cameraPosition, gravity, 1, triangles, triangleindex)) {
             gravity.y -= 0.01;
         }
         else gravity.y = 0;
