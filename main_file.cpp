@@ -777,16 +777,16 @@ int main(void)
             velocity.y += 0.4;
         }
         else framesSinceLastJump++;
-        //if (velocity.y < 0) velocity.y = 0;
+        if (velocity.y < 0) velocity.y = 0;
         //if (velocity.y > 0) velocity.y *= 2;
         if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0) {
             if (!spacePressed) velocity *= speed;
             isCollision(cameraPosition, velocity, 1, triangles, triangleindex);
         }
-        /*f(!isCollision(cameraPosition, gravity, 1, triangles, triangleindex)) {
+        f(!isCollision(cameraPosition, gravity, 1, triangles, triangleindex)) {
             gravity.y -= 0.01;
         }
-        else gravity.y = 0;*/
+        else gravity.y = 0;
 
 		drawScene(window,angle_x,angle_y); //Wykonaj procedurę rysującą
 		glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
