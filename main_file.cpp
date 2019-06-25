@@ -34,8 +34,6 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "myGrave0.h"
 #include "myGraves.h"
 #include "mySkull.h"
-#include "mySlender.h"
-#include "myZombie.h"
 using namespace std;
 
 float speed_x=0;
